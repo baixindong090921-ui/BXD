@@ -25,6 +25,11 @@ body {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
+  position: relative;
+  transition: width 0.3s ease;
+}
+.sidebar.collapsed {
+  width: 60px;
 }
 .sidebar-brand {
   padding: 0 20px 20px;
@@ -33,6 +38,41 @@ body {
   color: #60a5fa;
   border-bottom: 1px solid rgba(255,255,255,0.06);
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+}
+.sidebar.collapsed .sidebar-brand {
+  padding: 0 8px 20px;
+  justify-content: center;
+}
+.sidebar.collapsed .sidebar-brand-text {
+  display: none;
+}
+
+.sidebar-toggle {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #aaa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  line-height: 1;
+  padding: 0;
+  user-select: none;
+}
+.sidebar-toggle:hover {
+  border-color: rgba(255,255,255,0.35);
+  color: #fff;
+  background: rgba(255,255,255,0.12);
 }
 .sidebar-nav { list-style: none; }
 .sidebar-nav li a {
@@ -52,6 +92,17 @@ body {
   border-left-color: #3a7bd5;
 }
 .sidebar-nav li a .nav-icon { font-size: 1.1rem; width: 20px; text-align: center; }
+
+.sidebar.collapsed .sidebar-nav li a {
+  justify-content: center;
+  padding: 11px 0;
+  font-size: 0;
+  border-left-width: 0;
+}
+.sidebar.collapsed .sidebar-nav li a .nav-icon {
+  font-size: 1.15rem;
+  width: auto;
+}
 
 /* Header */
 h1 {
@@ -288,8 +339,11 @@ tr:hover td { background: rgba(255,255,255,0.03); }
 }
 @media (max-width: 680px) {
   .sidebar { width: 130px; padding: 16px 0; }
+  .sidebar.collapsed { width: 48px; }
   .sidebar-brand { padding: 0 12px 14px; font-size: 0.95rem; }
+  .sidebar.collapsed .sidebar-brand { padding: 0 6px 14px; }
   .sidebar-nav li a { padding: 10px 12px; font-size: 0.8rem; gap: 6px; }
+  .sidebar-toggle { width: 22px; height: 22px; font-size: 0.7rem; }
   .container { padding: 14px; }
   h1 { font-size: 1.3rem; }
   .shadow-bar { width: 96%; margin: 0 auto; padding: 22px 14px; }
@@ -302,7 +356,7 @@ tr:hover td { background: rgba(255,255,255,0.03); }
 <body>
 <!-- 左侧边栏 -->
 <div class="sidebar">
-  <div class="sidebar-brand">3500词</div>
+  <div class="sidebar-brand"><span class="sidebar-brand-text">3500词</span><button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="收起边栏">←</button></div>
   <ul class="sidebar-nav">
     <li><a href="#" onclick="navigate('words'); return false;"><span class="nav-icon">📖</span>单词</a></li>
     <li><a href="#" onclick="navigate('articles'); return false;"><span class="nav-icon">📄</span>体育赛事</a></li>
@@ -396,6 +450,14 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) state = JSON.parse(raw);
   } catch(e) {}
+  // 恢复边栏状态
+  try {
+    const collapsed = localStorage.getItem('sidebar_collapsed');
+    if (collapsed === 'true') {
+      document.querySelector('.sidebar').classList.add('collapsed');
+      document.getElementById('sidebarToggle').textContent = '→';
+    }
+  } catch(e) {}
 }
 function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
@@ -420,6 +482,16 @@ function getCurrentWord() {
   if (currentWords.length === 0) { ds.currentIndex = 0; return null; }
   ds.currentIndex = Math.max(0, Math.min(ds.currentIndex, currentWords.length - 1));
   return currentWords[ds.currentIndex];
+}
+
+// 边栏收缩/展开
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const btn = document.getElementById('sidebarToggle');
+  const collapsed = sidebar.classList.toggle('collapsed');
+  btn.textContent = collapsed ? '→' : '←';
+  btn.title = collapsed ? '展开边栏' : '收起边栏';
+  localStorage.setItem('sidebar_collapsed', collapsed);
 }
 
 // Main page → Day page
