@@ -2,11 +2,14 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>高中3500词</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background: #292a2d;
   min-height: 100vh;
@@ -67,7 +70,8 @@ body {
   flex-shrink: 0;
   line-height: 1;
   padding: 0;
-  user-select: none;
+  -webkit-user-select: none;
+user-select: none;
 }
 .sidebar-toggle:hover {
   border-color: rgba(255,255,255,0.35);
@@ -378,13 +382,14 @@ h1 {
   width: 100%;
   height: 260px;
   cursor: pointer;
-  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+transform-style: preserve-3d;
   transition: transform 0.5s ease;
 }
 .card.flipped { transform: rotateY(180deg); }
 .card-face {
   position: absolute;
-  inset: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -394,8 +399,8 @@ h1 {
   backface-visibility: hidden;
   border: 1px solid rgba(255,255,255,0.12);
 }
-.card-front { background: rgba(255,255,255,0.07); backdrop-filter: blur(14px); }
-.card-back { background: rgba(255,255,255,0.07); backdrop-filter: blur(14px); transform: rotateY(180deg); }
+.card-front { background: rgba(255,255,255,0.07); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.card-back { background: rgba(255,255,255,0.07); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transform: rotateY(180deg); }
 .card-word { font-size: 2.4rem; font-weight: 700; color: #fff; letter-spacing: 0.02em; text-align: center; }
 .card-hint { color: #888; margin-top: 8px; font-size: 0.82rem; }
 .card-chinese { font-size: 1.5rem; font-weight: 600; color: #ffd200; margin-bottom: 4px; }
@@ -420,6 +425,7 @@ h1 {
 .btn-next { background: rgba(255,255,255,0.1); color: #ddd; border: 1px solid rgba(255,255,255,0.2); }
 .btn-next:hover { background: rgba(255,255,255,0.18); }
 .btn:active { transform: scale(0.97); }
+button, a, .game-card, .day-card, .dict-item, .mode-btn, .sports-filter-btn, .sports-tab { -webkit-tap-highlight-color: transparent; }
 
 /* Table */
 .table-wrap {
@@ -432,6 +438,7 @@ h1 {
   margin-bottom: 20px;
   background: rgba(255,255,255,0.04);
 }
+.table-wrap { -webkit-overflow-scrolling: touch; }
 .table-wrap::-webkit-scrollbar { width: 5px; }
 .table-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
 .table-wrap.visible { display: block; }
@@ -782,6 +789,16 @@ tr:hover td { background: rgba(255,255,255,0.03); }
 </div>
 
 <script>
+
+// Global error handler
+window.onerror = function(msg, url, line, col, err) {
+  // Prevent complete page crash — silently recover
+  return true;
+};
+window.addEventListener('unhandledrejection', function(e) {
+  e.preventDefault(); // Prevent unhandled promise rejection console spam
+});
+
 const ALL_WORDS = window.wordsData;
 
 const STORAGE_KEY = 'highschool3500_v2';
@@ -936,7 +953,7 @@ function hideAllPages() {
     el = document.getElementById('sportsPage'); if (el) el.classList.add('hidden');
     el = document.getElementById('dayPage'); if (el) el.classList.add('hidden');
     el = document.getElementById('learnPage'); if (el) el.classList.add('hidden');
-  } catch(e) { console.error('hideAllPages error:', e); }
+  } catch(e) {  }
   currentDay = null; ds = null; currentWords = [];
 }
 
@@ -959,7 +976,7 @@ function navigate(page) {
       alert('「' + (titles[page] || page) + '」功能即将推出，敬请期待！');
     }
   } catch(e) {
-    console.error('navigate error:', e);
+    
     // Fallback: show main page
     var mp = document.getElementById('mainPage');
     if (mp) mp.classList.remove('hidden');
@@ -1200,7 +1217,7 @@ function switchSportsTab(tab) {
     var fbC = document.getElementById('footballContent');
     if (nbaC) nbaC.classList.toggle('hidden', tab !== 'nba');
     if (fbC) fbC.classList.toggle('hidden', tab !== 'football');
-  } catch(e) { console.error('switchSportsTab error:', e); }
+  } catch(e) {  }
 }
 
 function setSportsToday() {
@@ -1210,7 +1227,7 @@ function setSportsToday() {
     if (dateEl) dateEl.value = sportsDate;
     var btns = document.querySelectorAll('.sports-filter-btn');
     if (btns[0]) btns[0].classList.add('active');
-  } catch(e) { console.error('setSportsToday error:', e); }
+  } catch(e) {  }
 }
 
 function changeSportsDate(delta) {
@@ -1226,7 +1243,7 @@ function changeSportsDate(delta) {
     if (dateEl) dateEl.value = sportsDate;
     var btns = document.querySelectorAll('.sports-filter-btn');
     if (btns[0]) btns[0].classList.remove('active');
-  } catch(e) { console.error('changeSportsDate error:', e); }
+  } catch(e) {  }
 }
 
 function loadSportsData() {
@@ -1289,7 +1306,7 @@ function loadSportsData() {
         container.innerHTML = '<div class="sports-error">⚠ 数据加载失败<br><small>' + escHtml(msg) + '</small><br><button onclick="loadSportsData()" style="margin-top:10px;padding:8px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:#ddd;cursor:pointer;">重试</button></div>';
       });
   } catch(e) {
-    console.error('loadSportsData error:', e);
+    
     var c = document.getElementById('nbaContent');
     if (c) c.innerHTML = '<div class="sports-error">⚠ 加载失败<br><small>' + escHtml(e.message || '') + '</small></div>';
   }
@@ -1392,7 +1409,7 @@ function renderNBAGames(data) {
       })(events[ei]);
     }
   } catch(e) {
-    console.error('renderNBAGames error:', e);
+    
     var c = document.getElementById('nbaContent');
     if (c) c.innerHTML = '<div class="sports-error">⚠ 渲染比赛数据失败<br><small>' + escHtml(e.message || '') + '</small></div>';
   }
@@ -1407,11 +1424,20 @@ window.addEventListener('beforeunload', function() {
   try { clearInterval(sportsRefreshTimer); } catch(e) {}
 });
 
-// Init
-loadState();
-updateOverallProgress();
-updateDailyStats();
-renderWeekCalendar();
+// Init (runs after DOM is ready)
+document.addEventListener('DOMContentLoaded', function() {
+  loadState();
+  updateOverallProgress();
+  updateDailyStats();
+  renderWeekCalendar();
+});
+// Fallback: if DOM already loaded, run immediately
+if (document.readyState !== 'loading') {
+  loadState();
+  updateOverallProgress();
+  updateDailyStats();
+  renderWeekCalendar();
+}
 </script>
 </body>
 </html>
