@@ -422,9 +422,22 @@ transform-style: preserve-3d;
 .btn-known:hover { box-shadow: 0 4px 18px rgba(56,239,125,0.4); transform: translateY(-1px); }
 .btn-unknown { background: linear-gradient(135deg, #e67e00, #f5af19); color: #fff; }
 .btn-unknown:hover { box-shadow: 0 4px 18px rgba(245,175,25,0.4); transform: translateY(-1px); }
+.btn-prev { background: rgba(255,255,255,0.1); color: #ddd; border: 1px solid rgba(255,255,255,0.2); }
+.btn-prev:hover { background: rgba(255,255,255,0.18); }
 .btn-next { background: rgba(255,255,255,0.1); color: #ddd; border: 1px solid rgba(255,255,255,0.2); }
 .btn-next:hover { background: rgba(255,255,255,0.18); }
 .btn:active { transform: scale(0.97); }
+
+/* Toast */
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.85); color: #fff;
+  padding: 10px 24px; border-radius: 22px;
+  font-size: 0.9rem; z-index: 9999;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+}
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 button, a, .game-card, .day-card, .dict-item, .mode-btn, .sports-filter-btn, .sports-tab { -webkit-tap-highlight-color: transparent; }
 
 /* Table */
@@ -462,6 +475,8 @@ tr:hover td { background: rgba(255,255,255,0.03); }
   .card-word { font-size: 1.8rem; }
   .card { height: 230px; }
   .btn { padding: 10px 20px; font-size: 0.85rem; }
+  .btn-prev { padding: 10px 16px; font-size: 0.85rem; }
+  .btn-next { padding: 10px 16px; font-size: 0.85rem; }
 }
 @media (max-width: 680px) {
   .sidebar { width: 130px; padding: 16px 0; }
@@ -600,6 +615,55 @@ tr:hover td { background: rgba(255,255,255,0.03); }
   border: 1px solid rgba(255,255,255,0.15); background: transparent;
   color: #ddd; cursor: pointer;
 }
+
+/* ═══════ Wrong Words Page ═══════ */
+#wrongWordsPage { padding-top: 4px; }
+.ww-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+}
+.ww-title { font-size: 1.3rem; font-weight: 700; color: #fff; }
+.ww-count { font-size: 0.85rem; color: #888; margin-left: 8px; }
+.ww-list { display: flex; flex-direction: column; gap: 10px; }
+.ww-card {
+  background: #2a2b2e;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; padding: 16px 20px;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+}
+.ww-card:hover { background: #313236; }
+.ww-card-left { flex: 1; min-width: 180px; }
+.ww-card-en { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.ww-card-ph { font-size: 0.78rem; color: #999; margin-bottom: 2px; }
+.ww-card-zh { font-size: 0.88rem; color: #ffd200; }
+.ww-card-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.ww-btn {
+  padding: 6px 14px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent; color: #ccc;
+  font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+}
+.ww-btn:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
+.ww-btn.danger { border-color: rgba(229,62,62,0.3); color: #f87171; }
+.ww-btn.danger:hover { background: rgba(229,62,62,0.1); border-color: #e53e3e; }
+.ww-btn.study { border-color: rgba(58,123,213,0.4); color: #60a5fa; }
+.ww-btn.study:hover { background: rgba(58,123,213,0.1); border-color: #3a7bd5; }
+.ww-clear-btn {
+  padding: 8px 20px; border-radius: 10px;
+  border: 1px solid rgba(229,62,62,0.3); background: transparent;
+  color: #f87171; font-size: 0.85rem; cursor: pointer;
+  transition: all 0.2s; margin-top: 16px;
+}
+.ww-clear-btn:hover { background: rgba(229,62,62,0.1); border-color: #e53e3e; }
+.ww-detail {
+  display: none; margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.ww-detail.open { display: block; animation: fadeIn 0.25s; }
+.ww-detail-row { font-size: 0.82rem; color: #aaa; margin-bottom: 4px; }
+.ww-detail-row strong { color: #ddd; }
 </style>
 <script src="words-data.js"></script>
 </head>
@@ -679,9 +743,9 @@ tr:hover td { background: rgba(255,255,255,0.03); }
           <div class="dict-item-title">收藏</div>
           <div class="dict-item-count" id="favCount">0 词</div>
         </div>
-        <div class="dict-item" onclick="navigate(&#39;words&#39;); return false;">
+        <div class="dict-item" onclick="navigate(&#39;wrongwords&#39;); return false;">
           <span class="dict-item-badge">❌</span>
-          <div class="dict-item-title">错词</div>
+          <div class="dict-item-title">错词本</div>
           <div class="dict-item-count" id="wrongCount">0 词</div>
         </div>
         <div class="dict-item" onclick="navigate(&#39;words&#39;); return false;">
@@ -733,6 +797,16 @@ tr:hover td { background: rgba(255,255,255,0.03); }
     </div>
   </div>
 
+  <!-- 错词本页面 -->
+  <div id="wrongWordsPage" class="hidden">
+    <button class="back-btn" onclick="closeWrongWordsPage()">← 返回主页</button>
+    <div class="ww-header">
+      <div><span class="ww-title">错词本</span><span class="ww-count" id="wwCount">共 0 个错词</span></div>
+    </div>
+    <div class="ww-list" id="wwList"></div>
+    <button class="ww-clear-btn" onclick="clearAllWrongWords()">🗑 清空全部错词</button>
+  </div>
+
   <!-- Day 列表页面 -->
   <div id="dayPage" class="hidden">
     <button class="back-btn" onclick="backToMain()">← 返回</button>
@@ -775,6 +849,7 @@ tr:hover td { background: rgba(255,255,255,0.03); }
       <div class="actions">
         <button class="btn btn-known" onclick="markKnown()">✓ 认识</button>
         <button class="btn btn-unknown" onclick="markUnknown()">✗ 不认识</button>
+        <button class="btn btn-prev" onclick="prevWord()">← 上一个</button>
         <button class="btn btn-next" onclick="nextWord()">→ 下一个</button>
       </div>
     </div>
@@ -923,7 +998,7 @@ function updateOverallProgress() {
   document.getElementById('totalGlobal').textContent = totalWords;
   document.getElementById('dict3500Count').textContent = totalWords;
   document.getElementById('masteredGlobal').textContent = totalMastered;
-  document.getElementById('wrongCount').textContent = totalUnknown + ' 词';
+  document.getElementById('wrongCount').textContent = getWrongWords().length + ' 词';
   document.getElementById('masteredDictCount').textContent = totalMastered + ' 词';
   var pct = totalWords > 0 ? (totalMastered / totalWords * 100) : 0;
   document.getElementById('globalProgressBar').style.width = pct.toFixed(1) + '%';
@@ -951,6 +1026,7 @@ function hideAllPages() {
   try {
     var el = document.getElementById('mainPage'); if (el) el.classList.add('hidden');
     el = document.getElementById('sportsPage'); if (el) el.classList.add('hidden');
+    el = document.getElementById('wrongWordsPage'); if (el) el.classList.add('hidden');
     el = document.getElementById('dayPage'); if (el) el.classList.add('hidden');
     el = document.getElementById('learnPage'); if (el) el.classList.add('hidden');
   } catch(e) {  }
@@ -971,6 +1047,10 @@ function navigate(page) {
       var sp = document.getElementById('sportsPage');
       if (sp) sp.classList.remove('hidden');
       // Sports page is static framework — no API calls on load
+    } else if (page === 'wrongwords') {
+      var wwp = document.getElementById('wrongWordsPage');
+      if (wwp) wwp.classList.remove('hidden');
+      renderWrongWordsPage();
     } else {
       var titles = { canteen: '食堂', feedback: '反馈', resources: '资料', help: '帮助', add: '添加词库' };
       alert('「' + (titles[page] || page) + '」功能即将推出，敬请期待！');
@@ -1078,6 +1158,7 @@ function markUnknown() {
   delete ds.mastered[orig2];
   saveState();
   updateOverallProgress();
+  addWrongWord(w2);
   var today2 = new Date().toISOString().slice(0, 10);
   var todayTime2 = JSON.parse(localStorage.getItem('today_time') || '0');
   var totalTime2 = JSON.parse(localStorage.getItem('total_time') || '0');
@@ -1092,9 +1173,35 @@ function markUnknown() {
   nextWord();
 }
 
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.remove('toast');
+  void t.offsetWidth;
+  t.classList.add('toast');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.remove(); }, 3000);
+}
+
+function prevWord() {
+  if (!ds || !currentWords.length) return;
+  if (ds.currentIndex <= 0) {
+    showToast('当前已经是第一个单词了');
+    return;
+  }
+  ds.currentIndex--;
+  saveState();
+  updateCard();
+}
+
 function nextWord() {
   if (!ds || !currentWords.length) return;
-  ds.currentIndex = (ds.currentIndex + 1) % currentWords.length;
+  if (ds.currentIndex >= currentWords.length - 1) {
+    showToast('当前已经是最后一个单词了');
+    return;
+  }
+  ds.currentIndex++;
   saveState();
   updateCard();
 }
@@ -1423,6 +1530,136 @@ function escHtml(s) {
 window.addEventListener('beforeunload', function() {
   try { clearInterval(sportsRefreshTimer); } catch(e) {}
 });
+
+/* ═══════ Wrong Words Book ═══════ */
+function getWrongWords() {
+  try { return JSON.parse(localStorage.getItem('wrong_words_list') || '[]'); } catch(e) { return []; }
+}
+function saveWrongWords(list) {
+  try { localStorage.setItem('wrong_words_list', JSON.stringify(list)); } catch(e) {}
+}
+function addWrongWord(wordObj) {
+  var list = getWrongWords();
+  // Avoid duplicates
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].en === wordObj.en) return;
+  }
+  list.push({ en: wordObj.en, ph: wordObj.ph || '', zh: wordObj.zh || '', pos: wordObj.pos || '', ex: wordObj.ex || '', added: new Date().toISOString().slice(0,10) });
+  saveWrongWords(list);
+}
+
+function renderWrongWordsPage() {
+  var list = getWrongWords();
+  var container = document.getElementById('wwList');
+  var countEl = document.getElementById('wwCount');
+  if (countEl) countEl.textContent = '共 ' + list.length + ' 个错词';
+  if (!container) return;
+
+  if (list.length === 0) {
+    container.innerHTML = '<div class=\"sports-empty\" style=\"padding:60px 20px\">✅ 错词本为空，继续加油！</div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < list.length; i++) {
+    var w = list[i];
+    html += '<div class=\"ww-card\" id=\"ww-' + i + '\">' +
+      '<div class=\"ww-card-left\">' +
+        '<div class=\"ww-card-en\">' + escHtml2(w.en) + '</div>' +
+        (w.ph ? '<div class=\"ww-card-ph\">/' + escHtml2(w.ph.replace(/\\s+/g,'')) + '/</div>' : '') +
+        '<div class=\"ww-card-zh\">' + escHtml2(w.zh) + (w.pos ? ' <span style=\"color:#888\">' + escHtml2(w.pos) + '</span>' : '') + '</div>' +
+        '<div class=\"ww-detail\" id=\"ww-detail-' + i + '\">' +
+          '<div class=\"ww-detail-row\"><strong>音标：</strong>' + escHtml2(w.ph || '无') + '</div>' +
+          '<div class=\"ww-detail-row\"><strong>词性：</strong>' + escHtml2(w.pos || '无') + '</div>' +
+          '<div class=\"ww-detail-row\"><strong>释义：</strong>' + escHtml2(w.zh || '无') + '</div>' +
+          '<div class=\"ww-detail-row\"><strong>例句：</strong>' + escHtml2(w.ex || '无') + '</div>' +
+          '<div class=\"ww-detail-row\"><strong>添加日期：</strong>' + escHtml2(w.added || '') + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class=\"ww-card-actions\">' +
+        '<button class=\"ww-btn study\" onclick=\"event.stopPropagation();restudyWord(' + i + ')\">📖 重新学习</button>' +
+        '<button class=\"ww-btn danger\" onclick=\"event.stopPropagation();removeWrongWord(' + i + ')\">🗑 删除</button>' +
+      '</div>' +
+    '</div>';
+  }
+  container.innerHTML = html;
+
+  // Click to expand detail
+  for (var j = 0; j < list.length; j++) {
+    (function(idx) {
+      var card = document.getElementById('ww-' + idx);
+      if (card) {
+        card.addEventListener('click', function(e) {
+          var detail = document.getElementById('ww-detail-' + idx);
+          if (detail) detail.classList.toggle('open');
+        });
+      }
+    })(j);
+  }
+}
+
+function removeWrongWord(index) {
+  var list = getWrongWords();
+  list.splice(index, 1);
+  saveWrongWords(list);
+  renderWrongWordsPage();
+  updateOverallProgress();
+}
+
+function restudyWord(index) {
+  var list = getWrongWords();
+  var w = list[index];
+  if (!w) return;
+  // Navigate to learning page with this word
+  // Go to the day that contains this word
+  var days = Object.keys(ALL_WORDS);
+  for (var d = 0; d < days.length; d++) {
+    var words = ALL_WORDS[days[d]];
+    for (var wi = 0; wi < words.length; wi++) {
+      if (words[wi].en === w.en) {
+        currentDay = days[d];
+        ds = getDayState(currentDay);
+        ds.filter = 'all';
+        ds.currentIndex = wi;
+        ds.mode = 'study';
+        hideAllPages();
+        var el = document.getElementById('learnPage');
+        if (el) el.classList.remove('hidden');
+        document.getElementById('wrongWordsPage').classList.add('hidden');
+        applyModeUI();
+        saveState();
+        return;
+      }
+    }
+  }
+  // Word not found in original data — just remove it
+  removeWrongWord(index);
+}
+
+function clearAllWrongWords() {
+  if (getWrongWords().length === 0) return;
+  if (confirm('确定要清空全部错词吗？此操作不可恢复。')) {
+    saveWrongWords([]);
+    renderWrongWordsPage();
+    updateOverallProgress();
+  }
+}
+
+function closeWrongWordsPage() {
+  try {
+    document.getElementById('wrongWordsPage').classList.add('hidden');
+    var mp = document.getElementById('mainPage');
+    if (mp) mp.classList.remove('hidden');
+    updateOverallProgress();
+    updateDailyStats();
+    renderWeekCalendar();
+  } catch(e) {}
+}
+
+function escHtml2(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');
+}
 
 // Init (runs after DOM is ready)
 document.addEventListener('DOMContentLoaded', function() {
