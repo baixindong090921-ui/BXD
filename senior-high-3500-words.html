@@ -1024,9 +1024,9 @@ function markKnown() {
   ds.mastered[orig] = true;
   delete ds.unknown[orig];
   saveState();
-  updateCard();
   updateOverallProgress();
   trackStudy(1);
+  nextWord();
 }
 
 function trackStudy(count) {
@@ -1077,7 +1077,6 @@ function markUnknown() {
   ds.unknown[orig2] = true;
   delete ds.mastered[orig2];
   saveState();
-  updateCard();
   updateOverallProgress();
   var today2 = new Date().toISOString().slice(0, 10);
   var todayTime2 = JSON.parse(localStorage.getItem('today_time') || '0');
@@ -1090,6 +1089,7 @@ function markUnknown() {
   localStorage.setItem('total_time', totalTime2);
   localStorage.setItem('last_study_date', today2);
   updateDailyStats();
+  nextWord();
 }
 
 function nextWord() {
